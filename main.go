@@ -1,54 +1,35 @@
 package main
 
 import (
-	"log"
-	"time"
+	"os"
 
-	"github.com/awesome-gocui/gocui"
-	"github.com/jc-m/go-elecraft/rig"
-	"github.com/jc-m/go-elecraft/ui"
+	"github.com/jc-m/go-elecraft/cmd"
+	"github.com/mitchellh/cli"
 )
 
 func main() {
+	c := cli.NewCLI("elec", "0.0.0")
 
-	k := rig.New("/dev/tty.usbserial-A600UJU4", 38400)
+	ui := &cli.BasicUi{Writer: os.Stdout, Reader: os.Stdin}
 
-	if err := k.Open(); err != nil {
-		log.Fatal(err)
+	c.Args = os.Args[1:]
+	c.Commands = map[string]cli.CommandFactory{
+		"cw": func() (cli.Command, error) {
+			return &cmd.CWCmd{
+				UI: ui,
+			}, nil
+		},
+		"cw trainer": func() (cli.Command, error) {
+			return &cmd.CWTrnCmd{
+				UI: ui,
+			}, nil
+		},
 	}
 
-	cmd := rig.NewTTx()
-
-	time.Sleep(1 * time.Second)
-
-	_, err := k.SendCommand(cmd, "1")
+	exitStatus, err := c.Run()
 	if err != nil {
-		log.Fatal(err)
+		ui.Error(err.Error())
 	}
 
-	g, err := gocui.NewGui(gocui.OutputNormal, true)
-	if err != nil {
-		log.Panicln(err)
-	}
-	defer g.Close()
-
-	g.SetManagerFunc(ui.CWPracticeLayout)
-
-	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, ui.Quit); err != nil {
-		log.Panicln(err)
-	}
-
-	done := make(chan struct{})
-
-	go ui.BottomUpdate(g, k.GetDataChan(), done)
-
-	if err := g.MainLoop(); err != nil {
-		if gocui.IsQuit(err) {
-			k.SendCommand(cmd, "0")
-			k.Close()
-			close(done)
-		} else {
-			log.Panicln(err)
-		}
-	}
+	os.Exit(exitStatus)
 }
