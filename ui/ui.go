@@ -5,7 +5,7 @@ import (
 	"math"
 
 	"github.com/awesome-gocui/gocui"
-	"github.com/jc-m/go-elecraft/utils"
+	"github.com/w6ipa/go-elecraft/utils"
 )
 
 func CWPracticeLayout(g *gocui.Gui) error {

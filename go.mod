@@ -1,4 +1,4 @@
-module github.com/jc-m/go-elecraft
+module github.com/w6ipa/go-elecraft
 
 go 1.14
 

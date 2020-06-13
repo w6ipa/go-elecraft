@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/jc-m/go-elecraft/cmd"
 	"github.com/mitchellh/cli"
+	"github.com/w6ipa/go-elecraft/cmd"
 )
 
 func main() {

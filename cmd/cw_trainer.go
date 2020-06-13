@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/awesome-gocui/gocui"
-	"github.com/jc-m/go-elecraft/rig"
-	"github.com/jc-m/go-elecraft/ui"
-	"github.com/jc-m/go-elecraft/utils"
 	"github.com/mitchellh/cli"
+	"github.com/w6ipa/go-elecraft/rig"
+	"github.com/w6ipa/go-elecraft/ui"
+	"github.com/w6ipa/go-elecraft/utils"
 )
 
 type CWTrnCmd struct {
