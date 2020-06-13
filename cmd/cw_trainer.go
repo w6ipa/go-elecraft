@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"flag"
+	"fmt"
+	"io/ioutil"
 	"strconv"
 	"strings"
 	"time"
@@ -9,6 +11,7 @@ import (
 	"github.com/awesome-gocui/gocui"
 	"github.com/jc-m/go-elecraft/rig"
 	"github.com/jc-m/go-elecraft/ui"
+	"github.com/jc-m/go-elecraft/utils"
 	"github.com/mitchellh/cli"
 )
 
@@ -19,7 +22,7 @@ type CWTrnCmd struct {
 // Help return help for cw trainer command
 func (c CWTrnCmd) Help() string {
 	helpText := `
-Usage: elec cw trainer <port> <speed>
+Usage: elec cw trainer <port> <speed> <filename>
   CW Trainer
 `
 	return strings.TrimSpace(helpText)
@@ -34,7 +37,7 @@ func (c CWTrnCmd) Run(args []string) int {
 		return 1
 	}
 
-	if len(f.Args()) < 2 {
+	if len(f.Args()) < 3 {
 		c.UI.Error("Missing arguments")
 		return 1
 	}
@@ -76,6 +79,14 @@ func (c CWTrnCmd) Run(args []string) int {
 		return 1
 	}
 
+	content, err := ioutil.ReadFile(f.Arg(2))
+	if err != nil {
+		c.UI.Error(err.Error())
+		return 1
+	}
+
+	loadText(g, utils.FilterCW(content))
+
 	done := make(chan struct{})
 
 	go ui.BottomUpdate(g, k.GetDataChan(), done)
@@ -97,4 +108,17 @@ func (c CWTrnCmd) Run(args []string) int {
 // Synopsis return help for init command
 func (c CWTrnCmd) Synopsis() string {
 	return "CW Trainer"
+}
+
+func loadText(g *gocui.Gui, content []byte) {
+	g.Update(
+		func(g *gocui.Gui) error {
+			v, err := g.View("top")
+			if err != nil {
+				return err
+			}
+			fmt.Fprint(v, string(content))
+			g.Cursor = true
+			return nil
+		})
 }

@@ -1,17 +1,15 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"math/rand"
-	"os"
 	"time"
 
 	"github.com/awesome-gocui/gocui"
-	"github.com/dimchansky/utfbom"
 	"github.com/jc-m/go-elecraft/ui"
+	"github.com/jc-m/go-elecraft/utils"
 )
 
 var seededRand *rand.Rand = rand.New(
@@ -112,25 +110,12 @@ func main() {
 	}
 	done := make(chan struct{})
 
-	g.Update(
-		func(g *gocui.Gui) error {
-			v, err := g.View("top")
-			if err != nil {
-				return err
-			}
-			f, err := os.Open("pg5200.txt")
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer f.Close()
-			content, err := ioutil.ReadAll(utfbom.SkipOnly(bufio.NewReader(f)))
-			if err != nil {
-				log.Fatal(err)
-			}
-			fmt.Fprint(v, string(content))
-			g.Cursor = true
-			return nil
-		})
+	content, err := ioutil.ReadFile("pg5200.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	loadText(g, utils.FilterCW(content))
 	//go bottomUpdate(g, done)
 
 	if err := g.MainLoop(); err != nil {
@@ -140,4 +125,17 @@ func main() {
 			log.Panicln(err)
 		}
 	}
+}
+
+func loadText(g *gocui.Gui, content []byte) {
+	g.Update(
+		func(g *gocui.Gui) error {
+			v, err := g.View("top")
+			if err != nil {
+				return err
+			}
+			fmt.Fprint(v, string(content))
+			g.Cursor = true
+			return nil
+		})
 }
