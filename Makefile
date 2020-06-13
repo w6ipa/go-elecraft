@@ -10,3 +10,4 @@ clean:
 
 $(elec): 
 	go build -o $(elec) 
+.PHONY : $(elec)

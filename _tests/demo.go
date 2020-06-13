@@ -35,17 +35,6 @@ func bottomUpdate(g *gocui.Gui, done chan struct{}) {
 	}
 }
 
-func scrollView(v *gocui.View, dy int) error {
-	if v != nil {
-		v.Autoscroll = false
-		ox, oy := v.Origin()
-		if err := v.SetOrigin(ox, oy+dy); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func main() {
 
 	g, err := gocui.NewGui(gocui.OutputNormal, true)
@@ -62,14 +51,23 @@ func main() {
 
 	if err := g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			scrollView(v, -1)
+			ui.ScrollView(v, -1)
 			return nil
 		}); err != nil {
 		log.Panicln(err)
 	}
 	if err := g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			scrollView(v, 1)
+			ui.ScrollView(v, 1)
+			return nil
+		}); err != nil {
+		log.Panicln(err)
+	}
+
+	if err := g.SetKeybinding("", gocui.KeySpace, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			_, y := v.Size()
+			ui.ScrollView(v, y-1)
 			return nil
 		}); err != nil {
 		log.Panicln(err)
@@ -82,7 +80,7 @@ func main() {
 		}); err != nil {
 		log.Panicln(err)
 	}
-	if err := g.SetKeybinding("", gocui.KeySpace, gocui.ModNone,
+	if err := g.SetKeybinding("", gocui.KeyCtrlSpace, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			x, y := v.Cursor()
 			w, err := v.Word(x, y)

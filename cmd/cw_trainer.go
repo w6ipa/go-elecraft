@@ -79,6 +79,34 @@ func (c CWTrnCmd) Run(args []string) int {
 		return 1
 	}
 
+	if err := g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			ui.ScrollView(v, -1)
+			return nil
+		}); err != nil {
+		c.UI.Error(err.Error())
+		return 1
+	}
+
+	if err := g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			ui.ScrollView(v, 1)
+			return nil
+		}); err != nil {
+		c.UI.Error(err.Error())
+		return 1
+	}
+
+	if err := g.SetKeybinding("", gocui.KeySpace, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			_, y := v.Size()
+			ui.ScrollView(v, y-1)
+			return nil
+		}); err != nil {
+		c.UI.Error(err.Error())
+		return 1
+	}
+
 	content, err := ioutil.ReadFile(f.Arg(2))
 	if err != nil {
 		c.UI.Error(err.Error())
@@ -89,7 +117,7 @@ func (c CWTrnCmd) Run(args []string) int {
 
 	done := make(chan struct{})
 
-	go ui.BottomUpdate(g, k.GetDataChan(), done)
+	go ui.CWUpdate(g, k.GetDataChan(), done)
 
 	if err := g.MainLoop(); err != nil {
 		if gocui.IsQuit(err) {

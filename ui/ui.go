@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/awesome-gocui/gocui"
+	"github.com/jc-m/go-elecraft/utils"
 )
 
 func CWPracticeLayout(g *gocui.Gui) error {
@@ -36,7 +37,18 @@ func Quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
-func BottomUpdate(g *gocui.Gui, c chan []byte, done chan struct{}) {
+func ScrollView(v *gocui.View, dy int) error {
+	if v != nil {
+		v.Autoscroll = false
+		ox, oy := v.Origin()
+		if err := v.SetOrigin(ox, oy+dy); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func CWUpdate(g *gocui.Gui, c chan []byte, done chan struct{}) {
 Loop:
 	for {
 		select {
@@ -47,11 +59,23 @@ Loop:
 				break Loop
 			}
 			g.Update(func(g *gocui.Gui) error {
-				v, err := g.View("bottom")
+				bottom, err := g.View("bottom")
 				if err != nil {
 					return err
 				}
-				fmt.Fprintf(v, "%s", data)
+				fmt.Fprintf(bottom, "%s", data)
+				top, err := g.View("top")
+				if err != nil {
+					return err
+				}
+				x, y := top.Cursor()
+
+				line, err := top.Line(y)
+				if err != nil {
+					return err
+				}
+				dx := utils.CheckAndAdvance([]byte(line), x, data)
+				top.MoveCursor(dx, 0, false)
 				return nil
 			})
 		}
