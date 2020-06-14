@@ -34,18 +34,18 @@ func (c CWTrnCmd) Run(args []string) int {
 
 	if err := f.Parse(args); err != nil {
 		c.UI.Error("Invalid flag")
-		return 1
+		return cli.RunResultHelp
 	}
 
 	if len(f.Args()) < 3 {
 		c.UI.Error("Missing arguments")
-		return 1
+		return cli.RunResultHelp
 	}
 
 	speed, err := strconv.Atoi(f.Arg(1))
 	if err != nil {
 		c.UI.Error("invalid baud rate")
-		return 1
+		return cli.RunResultHelp
 	}
 
 	k := rig.New(f.Arg(0), speed)

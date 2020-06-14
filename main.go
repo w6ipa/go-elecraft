@@ -24,6 +24,12 @@ func main() {
 				UI: ui,
 			}, nil
 		},
+
+		"cw out": func() (cli.Command, error) {
+			return &cmd.CWOutCmd{
+				UI: ui,
+			}, nil
+		},
 	}
 
 	exitStatus, err := c.Run()
