@@ -83,12 +83,12 @@ func main() {
 	if err := g.SetKeybinding("", gocui.KeyCtrlSpace, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			x, y := v.Cursor()
-			w, err := v.Word(x, y)
+			w, err := v.Line(y)
 			if err != nil {
 				return nil
 			}
 			b, _ := g.View("bottom")
-			fmt.Fprint(b, w)
+			fmt.Fprintf(b, "%d/%d", x, len(w))
 			return nil
 		}); err != nil {
 		log.Panicln(err)

@@ -107,6 +107,23 @@ func (c CWTrnCmd) Run(args []string) int {
 		return 1
 	}
 
+	if err := g.SetKeybinding("", gocui.KeyArrowRight, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			v.MoveCursor(1, 0, false)
+			return nil
+		}); err != nil {
+		c.UI.Error(err.Error())
+		return 1
+	}
+
+	if err := g.SetKeybinding("", gocui.KeyArrowLeft, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			v.MoveCursor(-1, 0, false)
+			return nil
+		}); err != nil {
+		c.UI.Error(err.Error())
+		return 1
+	}
 	content, err := ioutil.ReadFile(f.Arg(2))
 	if err != nil {
 		c.UI.Error(err.Error())

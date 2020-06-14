@@ -6,7 +6,7 @@ import (
 )
 
 func TestVerify(t *testing.T) {
-	line := "THE PROJECT GUTENBERG EBOOK OF METAMORPHOSIS, BY FRANZ KAFKA"
+	line := "THE PROJECT GUTENBERG EBOOK OF METAMORPHOSIS,  BY FRANZ KAFKA"
 	x := strings.Index(line, "GUTENBERG") + 1
 	dx := CheckAndAdvance([]byte(line), x, []byte("UTENBERG"))
 	if dx != 8 {
@@ -14,7 +14,7 @@ func TestVerify(t *testing.T) {
 	}
 	x = strings.Index(line, " GUTENBERG")
 	dx = CheckAndAdvance([]byte(line), x, []byte(" XUT"))
-	if dx != 1 {
+	if dx != 0 {
 		t.Fatalf("Expected 1 got %d", dx)
 	}
 	x = 2
@@ -29,7 +29,13 @@ func TestVerify(t *testing.T) {
 	}
 	x = 10
 	dx = CheckAndAdvance([]byte(line), x, []byte("X"))
-	if x+dx != 4 {
-		t.Fatalf("Expected -6 got %d", dx)
+	if x+dx != 3 {
+		t.Fatalf("Expected -7 got %d", dx)
+	}
+
+	x = strings.Index(line, "  BY")
+	dx = CheckAndAdvance([]byte(line), x, []byte(" BY"))
+	if dx != 4 {
+		t.Fatalf("Expected 4 got %d", dx)
 	}
 }

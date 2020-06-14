@@ -21,14 +21,22 @@ func CWPracticeLayout(g *gocui.Gui) error {
 		if _, err := g.SetCurrentView("top"); err != nil {
 			return err
 		}
-		g.CurrentView().Title = "Active"
+		g.CurrentView().Title = "Text"
 	}
-	if v, err := g.SetView("bottom", 1, int(maxTopY+1), maxX-1, int(maxBottomY-1), 0); err != nil {
+	if v, err := g.SetView("bottom", 1, int(maxTopY+1), maxX-1, int(maxBottomY-4), 0); err != nil {
 		if !gocui.IsUnknownView(err) {
 			return err
 		}
 		v.Wrap = true
 		v.Autoscroll = true
+		v.Title = "CW received"
+	}
+	if v, err := g.SetView("help", 1, int(maxBottomY-3), maxX-1, maxY-1, 0); err != nil {
+		if !gocui.IsUnknownView(err) {
+			return err
+		}
+		fmt.Fprint(v, "[^C] Quit  [ARROWS] move [SPACE] Page Down | CW [BT] to skip")
+		v.Title = "Help"
 	}
 	return nil
 }
@@ -76,6 +84,12 @@ Loop:
 				}
 				dx := utils.CheckAndAdvance([]byte(line), x, data)
 				top.MoveCursor(dx, 0, false)
+				// there is a bug with end of line where the cursor moves out of the line.
+				x, y = top.Cursor()
+				if x == len(line) {
+					top.MoveCursor(1, 0, false)
+				}
+
 				return nil
 			})
 		}
