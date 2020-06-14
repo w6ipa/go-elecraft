@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -21,29 +20,24 @@ type CWOutCmd struct {
 // Help return help for cw trainer command
 func (c CWOutCmd) Help() string {
 	helpText := `
-Usage: elec cw out <port> <speed>
+Usage: elec cw out [options] <port>
   CW redirect to stdout
+  -s : set to port speed (baud rate) - defaults to 38400
 `
 	return strings.TrimSpace(helpText)
 }
 
 func (c CWOutCmd) Run(args []string) int {
-
+	var speed int
 	f := flag.NewFlagSet("out", flag.ContinueOnError)
+	f.IntVar(&speed, "s", 38400, "baud rate")
 
 	if err := f.Parse(args); err != nil {
-		c.UI.Error("Invalid flag")
-		return cli.RunResultHelp
+		return 1
 	}
 
-	if len(f.Args()) < 2 {
+	if len(f.Args()) < 1 {
 		c.UI.Error("Missing arguments")
-		return cli.RunResultHelp
-	}
-
-	speed, err := strconv.Atoi(f.Arg(1))
-	if err != nil {
-		c.UI.Error("invalid baud rate")
 		return cli.RunResultHelp
 	}
 

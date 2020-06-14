@@ -11,7 +11,7 @@ import (
 func CWPracticeLayout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 	maxTopY := 0 + math.Round(float64(maxY/2))
-	maxBottomY := maxTopY + math.Round(float64(maxY/2))
+	maxBottomY := maxY - 4
 
 	if v, err := g.SetView("top", 1, 1, maxX-1, int(maxTopY), 0); err != nil {
 		if !gocui.IsUnknownView(err) {
@@ -23,7 +23,7 @@ func CWPracticeLayout(g *gocui.Gui) error {
 		}
 		g.CurrentView().Title = "Text"
 	}
-	if v, err := g.SetView("bottom", 1, int(maxTopY+1), maxX-1, int(maxBottomY-4), 0); err != nil {
+	if v, err := g.SetView("bottom", 1, int(maxTopY+1), maxX-1, int(maxBottomY), 0); err != nil {
 		if !gocui.IsUnknownView(err) {
 			return err
 		}
@@ -31,7 +31,7 @@ func CWPracticeLayout(g *gocui.Gui) error {
 		v.Autoscroll = true
 		v.Title = "CW received"
 	}
-	if v, err := g.SetView("help", 1, int(maxBottomY-3), maxX-1, maxY-1, 0); err != nil {
+	if v, err := g.SetView("help", 1, int(maxBottomY+1), maxX-1, maxY-1, 0); err != nil {
 		if !gocui.IsUnknownView(err) {
 			return err
 		}

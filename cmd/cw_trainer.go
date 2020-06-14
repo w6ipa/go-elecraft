@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"strconv"
 	"strings"
 	"time"
 
@@ -22,29 +21,23 @@ type CWTrnCmd struct {
 // Help return help for cw trainer command
 func (c CWTrnCmd) Help() string {
 	helpText := `
-Usage: elec cw trainer <port> <speed> <filename>
+Usage: elec cw trainer [options] <port> <filename>
   CW Trainer
 `
 	return strings.TrimSpace(helpText)
 }
 
 func (c CWTrnCmd) Run(args []string) int {
-
+	var speed int
 	f := flag.NewFlagSet("trainer", flag.ContinueOnError)
+	f.IntVar(&speed, "s", 38400, "baud rate")
 
 	if err := f.Parse(args); err != nil {
-		c.UI.Error("Invalid flag")
-		return cli.RunResultHelp
+		return 1
 	}
 
-	if len(f.Args()) < 3 {
+	if len(f.Args()) < 2 {
 		c.UI.Error("Missing arguments")
-		return cli.RunResultHelp
-	}
-
-	speed, err := strconv.Atoi(f.Arg(1))
-	if err != nil {
-		c.UI.Error("invalid baud rate")
 		return cli.RunResultHelp
 	}
 
@@ -124,12 +117,12 @@ func (c CWTrnCmd) Run(args []string) int {
 		c.UI.Error(err.Error())
 		return 1
 	}
-	content, err := ioutil.ReadFile(f.Arg(2))
+	content, err := ioutil.ReadFile(f.Arg(1))
 	if err != nil {
 		c.UI.Error(err.Error())
 		return 1
 	}
-
+	c.UI.Info("Loading text...")
 	loadText(g, utils.FilterCW(content))
 
 	done := make(chan struct{})
