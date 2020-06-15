@@ -6,36 +6,98 @@ import (
 )
 
 func TestVerify(t *testing.T) {
+	//                 1         2         3         4         5
+	//       0123456789012345678901234567890123456789012345678901234567890
 	line := "THE PROJECT GUTENBERG EBOOK OF METAMORPHOSIS,  BY FRANZ KAFKA"
-	x := strings.Index(line, "GUTENBERG") + 1
-	dx := CheckAndAdvance([]byte(line), x, []byte("UTENBERG"))
-	if dx != 8 {
-		t.Fatalf("Expected 3 got %d", dx)
-	}
-	x = strings.Index(line, " GUTENBERG")
-	dx = CheckAndAdvance([]byte(line), x, []byte(" XUT"))
-	if dx != 0 {
-		t.Fatalf("Expected 1 got %d", dx)
-	}
-	x = 2
-	dx = CheckAndAdvance([]byte(line), x, []byte("X"))
-	if dx+x != 0 {
-		t.Fatalf("Expected 0 got %d", dx)
-	}
-	x = 0
-	dx = CheckAndAdvance([]byte(line), x, []byte(" T"))
-	if dx != 1 {
-		t.Fatalf("Expected 1 got %d", dx)
-	}
-	x = 10
-	dx = CheckAndAdvance([]byte(line), x, []byte("X"))
-	if x+dx != 3 {
-		t.Fatalf("Expected -7 got %d", dx)
+
+	var testCases = []struct {
+		input string
+		oldX  int
+		newX  int
+	}{
+		{
+			input: "UTENBERG",
+			oldX:  strings.Index(line, "GUTENBERG") + 1,
+			newX:  strings.Index(line, " EB"),
+		},
+		{
+			input: " XUT",
+			oldX:  strings.Index(line, " GUTENBERG"),
+			newX:  strings.Index(line, " GUTENBERG"),
+		},
+		{
+			input: "X",
+			oldX:  2,
+			newX:  0,
+		},
+		{
+			input: " T",
+			oldX:  0,
+			newX:  1,
+		},
+		{
+			input: "X",
+			oldX:  strings.Index(line, "C"),
+			newX:  strings.Index(line, " PRO"),
+		},
+		{
+			input: " BY",
+			oldX:  strings.Index(line, "  BY"),
+			newX:  strings.Index(line, " F"),
+		},
 	}
 
-	x = strings.Index(line, "  BY")
-	dx = CheckAndAdvance([]byte(line), x, []byte(" BY"))
-	if dx != 4 {
-		t.Fatalf("Expected 4 got %d", dx)
+	for i, c := range testCases {
+		dx := CheckAndAdvance([]byte(line), c.oldX, []byte(c.input))
+		if c.oldX+dx != c.newX {
+			t.Fatalf("%d: input %s - Expected %d got %d", i, c.input, c.newX, c.oldX+dx)
+		}
+	}
+}
+
+func TestHasPrefix(t *testing.T) {
+	var testCases = []struct {
+		s      string
+		prefix string
+		x      int
+		t      bool
+	}{
+		{
+			s:      "  BY",
+			prefix: " BY",
+			x:      1,
+			t:      true,
+		},
+		{
+			s:      "    BY",
+			prefix: " BY",
+			x:      2,
+			t:      true,
+		},
+		{
+			s:      "   BY",
+			prefix: " BT",
+			x:      0,
+			t:      false,
+		},
+		{
+			s:      "BY",
+			prefix: "BY",
+			x:      0,
+			t:      true,
+		},
+		{
+			s:      "BY",
+			prefix: "BX",
+			x:      0,
+			t:      false,
+		},
+	}
+
+	for i, c := range testCases {
+		b, x := hasPrefix([]byte(c.s), []byte(c.prefix), 0x20)
+		if b != c.t && x != c.x {
+			t.Fatalf("%d: s: %s - Expected %d/%t got %d/%t", i, c.s, c.x, c.t, x, b)
+		}
 	}
 }
