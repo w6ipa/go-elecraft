@@ -22,7 +22,10 @@ type CWTrnCmd struct {
 func (c CWTrnCmd) Help() string {
 	helpText := `
 Usage: elec cw trainer [options] <port> <filename>
-  CW Trainer
+Console based CW dictation trainer.
+options:
+-s : set to port speed (baud rate) - defaults to 38400.
+-b : use buffered mode (if connected through PX3/KPA100)
 `
 	return strings.TrimSpace(helpText)
 }
