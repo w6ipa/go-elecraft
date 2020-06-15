@@ -22,7 +22,7 @@ func (c CWOutCmd) Help() string {
 	helpText := `
 Usage: elec cw out [options] <port>
   CW redirect to stdout
-  -s : set to port speed (baud rate)
+  -s : set to port speed (baud rate) - defaults to 38400.
   -b : use buffered mode (if connected through PX3/KPA100)
 `
 	return strings.TrimSpace(helpText)
