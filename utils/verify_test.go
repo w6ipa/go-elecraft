@@ -92,6 +92,12 @@ func TestHasPrefix(t *testing.T) {
 			x:      0,
 			t:      false,
 		},
+		{
+			s:      "SSSSS",
+			prefix: " S",
+			x:      0,
+			t:      false,
+		},
 	}
 
 	for i, c := range testCases {

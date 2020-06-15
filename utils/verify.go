@@ -39,7 +39,7 @@ func hasPrefix(s []byte, prefix []byte, skip byte) (bool, int) {
 	if len(s) < len(prefix) {
 		return false, 0
 	}
-	if prefix[0] != skip {
+	if prefix[0] != skip || s[0] != skip {
 		return bytes.HasPrefix(s, prefix), 0
 	}
 	for i := 0; i < len(s); i++ {
