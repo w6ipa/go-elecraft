@@ -17,3 +17,5 @@ The provided text is filtered to remove keeping the most used characters (alphab
 You can position the cursor where ever you want the dictation to start, using the space bar to move a page down, arrows to move up, down, and righ/left.
 Because space is automatically inserted by the keyer, timing is critical, specially for comma and period.
 The pro-sign BT advance the cursor by one if you need to - however, your keyboard arrows work too. This would be specially useful if you are using a justified text with multiple spaces which you cannot do with the keyer.
+
+If using a KXPA100 or PX3/P3 in combination with the KX2/3 - use the buffered mode (-b).

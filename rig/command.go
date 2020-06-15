@@ -76,10 +76,6 @@ Loop:
 	return nil, fmt.Errorf("Maximum number of runs reached")
 }
 
-func (c *Connection) GetDataChan() chan []byte {
-	return c.dataChan
-}
-
 type tbx struct {
 	parser *regexp.Regexp
 }

@@ -63,3 +63,7 @@ func (c *Connection) read() {
 	}
 	close(c.dataChan)
 }
+
+func (c *Connection) GetSerialChan() chan []byte {
+	return c.dataChan
+}

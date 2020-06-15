@@ -15,8 +15,8 @@ func cwFilter(r rune) rune {
 	if r > 0x60 && r < 0x7B {
 		return r - 0x20
 	}
-	// [ .,?]
-	if r == 0x20 || r == 0x2E || r == 0x2c || r == 0x3f {
+	// [ .,?/]
+	if r == 0x20 || r == 0x2E || r == 0x2c || r == 0x3f || r == 0x2f {
 		return r
 	}
 	// [A-Z]

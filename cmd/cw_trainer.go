@@ -29,8 +29,13 @@ Usage: elec cw trainer [options] <port> <filename>
 
 func (c CWTrnCmd) Run(args []string) int {
 	var speed int
+	var buffered bool
+	var dataChan chan []byte
+	done := make(chan struct{})
+
 	f := flag.NewFlagSet("trainer", flag.ContinueOnError)
 	f.IntVar(&speed, "s", 38400, "baud rate")
+	f.BoolVar(&buffered, "b", false, "use buffered mode (when using kxpa100 or PX3/P3")
 
 	if err := f.Parse(args); err != nil {
 		return 1
@@ -47,14 +52,29 @@ func (c CWTrnCmd) Run(args []string) int {
 		c.UI.Error(err.Error())
 		return 1
 	}
+	if buffered {
+		dataChan = make(chan []byte)
 
-	cmd := rig.NewTTx()
+		go buffRead(k, dataChan, done)
 
-	time.Sleep(1 * time.Second)
+		defer func() {
+			k.Close()
+		}()
+	} else {
+		dataChan = k.GetSerialChan()
+		cmd := rig.NewTTx()
 
-	if _, err := k.SendCommand(cmd, "1"); err != nil {
-		c.UI.Error(err.Error())
-		return 1
+		time.Sleep(1 * time.Second)
+
+		if _, err := k.SendCommand(cmd, "1"); err != nil {
+			c.UI.Error(err.Error())
+			return 1
+		}
+
+		defer func() {
+			k.SendCommand(cmd, "0")
+			k.Close()
+		}()
 	}
 
 	g, err := gocui.NewGui(gocui.OutputNormal, true)
@@ -122,17 +142,12 @@ func (c CWTrnCmd) Run(args []string) int {
 		c.UI.Error(err.Error())
 		return 1
 	}
-	c.UI.Info("Loading text...")
 	loadText(g, utils.FilterCW(content))
 
-	done := make(chan struct{})
-
-	go ui.CWUpdate(g, k.GetDataChan(), done)
+	go ui.CWUpdate(g, dataChan, done)
 
 	if err := g.MainLoop(); err != nil {
 		if gocui.IsQuit(err) {
-			k.SendCommand(cmd, "0")
-			k.Close()
 			close(done)
 			return 0
 		} else {

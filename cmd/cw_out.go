@@ -29,8 +29,12 @@ Usage: elec cw out [options] <port>
 
 func (c CWOutCmd) Run(args []string) int {
 	var speed int
+	var buffered bool
+	var dataChan chan []byte
+
 	f := flag.NewFlagSet("out", flag.ContinueOnError)
 	f.IntVar(&speed, "s", 38400, "baud rate")
+	f.BoolVar(&buffered, "b", false, "use buffered mode (when using kxpa100 or PX3/P3")
 
 	if err := f.Parse(args); err != nil {
 		return 1
@@ -40,7 +44,6 @@ func (c CWOutCmd) Run(args []string) int {
 		c.UI.Error("Missing arguments")
 		return cli.RunResultHelp
 	}
-
 	k := rig.New(f.Arg(0), speed)
 
 	if err := k.Open(); err != nil {
@@ -48,22 +51,39 @@ func (c CWOutCmd) Run(args []string) int {
 		return 1
 	}
 
-	cmd := rig.NewTTx()
+	if buffered {
+		dataChan = make(chan []byte)
+		done := make(chan struct{})
 
-	time.Sleep(1 * time.Second)
+		go buffRead(k, dataChan, done)
+		defer func() {
+			close(done)
+			k.Close()
+		}()
+	} else {
 
-	if _, err := k.SendCommand(cmd, "1"); err != nil {
-		c.UI.Error(err.Error())
-		return 1
+		cmd := rig.NewTTx()
+
+		time.Sleep(1 * time.Second)
+
+		if _, err := k.SendCommand(cmd, "1"); err != nil {
+			c.UI.Error(err.Error())
+			return 1
+		}
+		defer func() {
+			k.SendCommand(cmd, "0")
+			k.Close()
+			close(k.GetSerialChan())
+		}()
+		dataChan = k.GetSerialChan()
 	}
-	defer end(k)
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, os.Kill, syscall.SIGTERM)
 Loop:
 	for {
 		select {
-		case data, ok := <-k.GetDataChan():
+		case data, ok := <-dataChan:
 			if !ok {
 				break Loop
 			}
@@ -78,11 +98,4 @@ Loop:
 // Synopsis return help for init command
 func (c CWOutCmd) Synopsis() string {
 	return "CW to stdout"
-}
-
-func end(k *rig.Connection) {
-	cmd := rig.NewTTx()
-	k.SendCommand(cmd, "0")
-	k.Close()
-	close(k.GetDataChan())
 }
