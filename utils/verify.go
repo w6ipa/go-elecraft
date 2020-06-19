@@ -36,7 +36,7 @@ func CheckAndAdvance(line []byte, x int, input []byte) int {
 // same as bytes.HasPrefix, but skip given characters if first character in input is skip character
 // returns the number of skipped characters
 func hasPrefix(s []byte, prefix []byte, skip byte) (bool, int) {
-	if len(s) < len(prefix) {
+	if len(s) < len(prefix) || len(s) == 0 || len(prefix) == 0 {
 		return false, 0
 	}
 	if prefix[0] != skip || s[0] != skip {

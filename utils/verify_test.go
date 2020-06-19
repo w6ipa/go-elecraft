@@ -6,9 +6,9 @@ import (
 )
 
 func TestVerify(t *testing.T) {
-	//                 1         2         3         4         5
-	//       0123456789012345678901234567890123456789012345678901234567890
-	line := "THE PROJECT GUTENBERG EBOOK OF METAMORPHOSIS,  BY FRANZ KAFKA"
+	//                 1         2         3         4         5         6
+	//       01234567890123456789012345678901234567890123456789012345678901
+	line := "THE PROJECT GUTENBERG EBOOK OF METAMORPHOSIS,  BY FRANZ KAFKA."
 
 	var testCases = []struct {
 		input string
@@ -44,6 +44,11 @@ func TestVerify(t *testing.T) {
 			input: " BY",
 			oldX:  strings.Index(line, "  BY"),
 			newX:  strings.Index(line, " F"),
+		},
+		{
+			input: "X",
+			oldX:  strings.Index(line, "."),
+			newX:  strings.Index(line, " K"),
 		},
 	}
 
