@@ -14,6 +14,11 @@ func main() {
 
 	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{
+		"id": func() (cli.Command, error) {
+			return &cmd.IDCmd{
+				UI: ui,
+			}, nil
+		},
 		"cw": func() (cli.Command, error) {
 			return &cmd.CWCmd{
 				UI: ui,
